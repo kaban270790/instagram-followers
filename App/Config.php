@@ -14,7 +14,7 @@ class Config
     /**
      * @var string путь до файла с настроками
      */
-    private static $config_file = APP_DIR . '/core/config.php';
+    private static $config_file = APP_DIR . '/config.php';
 
     /**
      * Возвращает значение настройки, можно запрашивать

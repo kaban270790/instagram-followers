@@ -6,10 +6,14 @@
  * Time: 02:21:15
  */
 return [
-    'database' => [
+    'database'  => [
         'db_host' => 'localhost',
         'db_user' => 'root',
         'db_pass' => '',
         'db_name' => 'finances',
+    ],
+    'instagram' => [
+        'login'    => '',
+        'password' => '',
     ],
 ];
