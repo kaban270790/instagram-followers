@@ -14,7 +14,7 @@ use Exceptions\FollowersInstagramException;
 class Followers
 {
     const QUERY_ID = 17851374694183129;
-    const COUNT_LOAD = 100;
+    const COUNT_LOAD = 1000;
 
     public static function getFollowers($instagramUserId)
     {

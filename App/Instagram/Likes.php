@@ -14,7 +14,7 @@ use Exceptions\LikesInstagramException;
 class Likes
 {
     const QUERY_ID = 17864450716183058;
-    const COUNT_LOAD = 100;
+    const COUNT_LOAD = 1000;
 
     public static function getLikes($shortCode)
     {

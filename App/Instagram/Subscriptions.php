@@ -14,7 +14,7 @@ use Exceptions\SubscriptionsInstagramException;
 class Subscriptions
 {
     const QUERY_ID = 17874545323001329;
-    const COUNT_LOAD = 100;
+    const COUNT_LOAD = 1000;
 
     public static function getSubscriptions($instagramUserId)
     {
