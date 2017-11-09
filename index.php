@@ -11,5 +11,5 @@ error_reporting(E_ALL);
 
 require_once "load.php";
 $instagram = new Instagram();
-$instagram->getFollowers();
+var_dump(count($instagram->getSubscriptions()));
 

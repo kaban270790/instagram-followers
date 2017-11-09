@@ -2,6 +2,7 @@
 
 use Exceptions\AuthInstagramException;
 use Instagram\Followers;
+use Instagram\Subscriptions;
 
 /**
  * Created by PhpStorm.
@@ -14,6 +15,8 @@ class Instagram
     private static $csrfToken = '';
 
     private static $userId;
+
+    private $subscriptions = [];
 
     private $followers = [];
 
@@ -74,6 +77,14 @@ class Instagram
             $this->followers = Followers::getFollowers();
         }
         return $this->followers;
+    }
+
+    public function getSubscriptions()
+    {
+        if (!$this->subscriptions) {
+            $this->subscriptions = Subscriptions::getSubscriptions();
+        }
+        return $this->subscriptions;
     }
 
     public static function getCSRFToken()
