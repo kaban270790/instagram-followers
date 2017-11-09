@@ -16,6 +16,8 @@ class Mysql
 
     private static $hasTransaction = false;
 
+    const COUNT_INSERT_ROWS = 1000;
+
     /**
      * Простой запрос
      * @param $sql
@@ -107,7 +109,7 @@ class Mysql
      * @param bool $reconnect
      * @return mysqli
      */
-    private static function connect($reconnect = false)
+    public static function connect($reconnect = false)
     {
         if (!self::$link || $reconnect === true) {
             $db_host = \Config::getConfig('database.db_host');

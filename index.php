@@ -15,3 +15,38 @@ $testAccountId = Config::getConfig('instagram.test_account_id');
 if (empty($testAccountId)) {
     die('Не указан аккаунт для исследования');
 }
+$followers = \Instagram\Followers::getFollowers($testAccountId);
+$followersUsername = [];
+foreach ($followers as $follower) {
+    $followersUsername[] = $follower['username'];
+}
+if (empty($followersUsername)) {
+    die("Подписчики отсутствуют");
+}
+try {
+    Mysql::transaction();
+    $dbActiveFollowersUsername = Mysql::selectColl("SELECT account FROM followers WHERE date_out IS NULL");
+    $followersForAddingUsername = array_diff($followersUsername,
+        $dbActiveFollowersUsername); //тех, которых надо бобавить, или заново активировать
+    $followersForRemovingUsername = array_diff($dbActiveFollowersUsername,
+        $followersUsername); //тех, которых надо пометить что не активные
+
+    if (count($followersForAddingUsername) > 0) {
+        foreach (array_chunk($followersForAddingUsername, Mysql::COUNT_INSERT_ROWS) as $part) {
+            $sql = "INSERT INTO followers (account) VALUES ('" . implode("'), ('", $part) . "')
+            ON DUPLICATE KEY UPDATE date_out = NULL, active = NULL";
+            Mysql::connect()->query($sql);
+        }
+    }
+
+    if (count($followersForRemovingUsername) > 0) {
+        $sql = "UPDATE followers SET date_out = CURRENT_TIMESTAMP()
+            WHERE date_out IS NULL AND account IN ('" . implode("', '", $followersForRemovingUsername) . "');";
+        Mysql::connect()->query($sql);
+    }
+
+    Mysql::commit();
+} catch (\Exception $e) {
+    Mysql::rollback();
+    die ($e->getMessage());
+}
