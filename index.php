@@ -11,5 +11,11 @@ error_reporting(E_ALL);
 
 require_once "load.php";
 $instagram = new Instagram();
-var_dump(count($instagram->getSubscriptions()));
+$publications = $instagram->getPublications(5);
+foreach ($publications as $publicationId => $publication) {
+    var_dump(count($instagram->getLikes($publication['shortcode'])));
+    if ($publication['is_video'] === true) {
+        var_dump(count($instagram->getViews($publication['shortcode'])));
+    }
+}
 

@@ -2,7 +2,10 @@
 
 use Exceptions\AuthInstagramException;
 use Instagram\Followers;
+use Instagram\Likes;
+use Instagram\Publications;
 use Instagram\Subscriptions;
+use Instagram\Views;
 
 /**
  * Created by PhpStorm.
@@ -19,6 +22,8 @@ class Instagram
     private $subscriptions = [];
 
     private $followers = [];
+
+    private $publications = [];
 
     public function __construct()
     {
@@ -85,6 +90,22 @@ class Instagram
             $this->subscriptions = Subscriptions::getSubscriptions();
         }
         return $this->subscriptions;
+    }
+
+    public function getPublications($count = false)
+    {
+        if (!$this->publications) {
+            $this->publications = Publications::getPublications($count);
+        }
+        return $this->publications;
+    }
+
+    public function getLikes($shortCode)
+    {
+        if (empty($shortCode)) {
+            return null;
+        }
+        return Likes::getLikes($shortCode);
     }
 
     public static function getCSRFToken()
