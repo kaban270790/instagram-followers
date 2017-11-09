@@ -16,13 +16,14 @@ class Followers
     const QUERY_ID = 17851374694183129;
     const COUNT_LOAD = 100;
 
-    public static function getFollowers($cursor = null)
+    public static function getFollowers($instagramUserId)
     {
         $followers = [];
 
         try {
+            $cursor = null;
             do {
-                $edge_followed_by = self::curlGetFollowers($cursor);
+                $edge_followed_by = self::curlGetFollowers($instagramUserId, $cursor);
                 foreach ($edge_followed_by['edges'] as $edge) {
                     $followers[$edge['node']['id']] = $edge['node'];
                 }
@@ -34,7 +35,7 @@ class Followers
         return $followers;
     }
 
-    private static function curlGetFollowers($cursor)
+    private static function curlGetFollowers($instagramUserId, $cursor)
     {
 
         $curl2 = new \Curl();
@@ -44,7 +45,7 @@ class Followers
             ->run([
                 'query_id'  => self::QUERY_ID,
                 'variables' => json_encode([
-                    'id'    => \Instagram::getUserId(),
+                    'id'    => $instagramUserId,
                     'first' => self::COUNT_LOAD,
                     'after' => $cursor,
                 ]),

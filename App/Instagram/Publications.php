@@ -16,7 +16,7 @@ class Publications
     const QUERY_ID = 17888483320059182;
     const COUNT_LOAD = 30;
 
-    public static function getPublications($count = false)
+    public static function getPublications($instagramUserId, $count = false)
     {
         $publications = [];
 
@@ -27,7 +27,7 @@ class Publications
                 if ($count !== false && count($publications) >= $count) {
                     break;
                 }
-                $result = self::curlGetPublications($cursor);
+                $result = self::curlGetPublications($instagramUserId, $cursor);
                 foreach ($result['edges'] as $edge) {
                     if ($count !== false && count($publications) >= $count) {
                         break;
@@ -43,7 +43,7 @@ class Publications
         return $publications;
     }
 
-    private static function curlGetPublications($cursor)
+    private static function curlGetPublications($instagramUserId, $cursor)
     {
 
         $curl2 = new \Curl();
@@ -53,7 +53,7 @@ class Publications
             ->run([
                 'query_id'  => self::QUERY_ID,
                 'variables' => json_encode([
-                    'id'    => \Instagram::getUserId(),
+                    'id'    => $instagramUserId,
                     'first' => self::COUNT_LOAD,
                     'after' => $cursor,
                 ]),

@@ -79,7 +79,7 @@ class Instagram
     public function getFollowers()
     {
         if (!$this->followers) {
-            $this->followers = Followers::getFollowers();
+            $this->followers = Followers::getFollowers(self::$userId);
         }
         return $this->followers;
     }
@@ -87,7 +87,7 @@ class Instagram
     public function getSubscriptions()
     {
         if (!$this->subscriptions) {
-            $this->subscriptions = Subscriptions::getSubscriptions();
+            $this->subscriptions = Subscriptions::getSubscriptions(self::$userId);
         }
         return $this->subscriptions;
     }
@@ -95,7 +95,7 @@ class Instagram
     public function getPublications($count = false)
     {
         if (!$this->publications) {
-            $this->publications = Publications::getPublications($count);
+            $this->publications = Publications::getPublications(self::$userId, $count);
         }
         return $this->publications;
     }

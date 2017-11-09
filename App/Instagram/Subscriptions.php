@@ -16,11 +16,12 @@ class Subscriptions
     const QUERY_ID = 17874545323001329;
     const COUNT_LOAD = 100;
 
-    public static function getSubscriptions($cursor = null)
+    public static function getSubscriptions($instagramUserId)
     {
         $subscriptions = [];
 
         try {
+            $cursor = null;
             do {
                 $edge_follow = self::curlGetSubscriptions($cursor);
                 foreach ($edge_follow['edges'] as $edge) {
@@ -34,7 +35,7 @@ class Subscriptions
         return $subscriptions;
     }
 
-    private static function curlGetSubscriptions($cursor)
+    private static function curlGetSubscriptions($instagramUserId, $cursor)
     {
 
         $curl2 = new \Curl();
@@ -44,7 +45,7 @@ class Subscriptions
             ->run([
                 'query_id'  => self::QUERY_ID,
                 'variables' => json_encode([
-                    'id'    => \Instagram::getUserId(),
+                    'id'    => $instagramUserId,
                     'first' => self::COUNT_LOAD,
                     'after' => $cursor,
                 ]),
