@@ -23,7 +23,7 @@ class Subscriptions
         try {
             $cursor = null;
             do {
-                $edge_follow = self::curlGetSubscriptions($cursor);
+                $edge_follow = self::curlGetSubscriptions($instagramUserId, $cursor);
                 foreach ($edge_follow['edges'] as $edge) {
                     $subscriptions[$edge['node']['id']] = $edge['node'];
                 }

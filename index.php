@@ -40,9 +40,27 @@ try {
     }
 
     if (count($followersForRemovingUsername) > 0) {
-        $sql = "UPDATE followers SET date_out = CURRENT_TIMESTAMP()
-            WHERE date_out IS NULL AND account IN ('" . implode("', '", $followersForRemovingUsername) . "');";
-        Mysql::connect()->query($sql);
+        $subscriptions = \Instagram\Subscriptions::getSubscriptions($testAccountId);
+        $subscriptionsUsername = [];
+        foreach ($subscriptions as $subscription) {
+            $subscriptionsUsername[] = $subscription['username'];
+        }
+        $followersOutSubscription = array_diff($followersForRemovingUsername,
+            $subscriptionsUsername); //на которых не подписан
+        $followersInSubscription = array_diff($followersForRemovingUsername,
+            $followersOutSubscription); //на которых я подписан
+
+        if (count($followersOutSubscription) > 0) {
+            $sql = "UPDATE followers SET date_out = CURRENT_TIMESTAMP(), active = 0
+            WHERE date_out IS NULL AND account IN ('" . implode("', '", $followersOutSubscription) . "');";
+            Mysql::connect()->query($sql);
+        }
+
+        if (count($followersInSubscription) > 0) {
+            $sql = "UPDATE followers SET date_out = CURRENT_TIMESTAMP(), active = 1
+            WHERE date_out IS NULL AND account IN ('" . implode("', '", $followersInSubscription) . "');";
+            Mysql::connect()->query($sql);
+        }
     }
 
     Mysql::commit();
