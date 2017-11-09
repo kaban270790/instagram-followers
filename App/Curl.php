@@ -31,10 +31,34 @@ class Curl
     {
         $cookies = [];
         foreach (explode(';', self::$cookie) as $item) {
+            if (empty($item)) {
+                continue;
+            }
             list($key, $value) = explode('=', $item);
+            if (empty($key)) {
+                continue;
+            }
+            if (empty($value)) continue;
             $cookies[$key] = $value;
         }
         return $cookies;
+    }
+
+    private static function setCookie($cookie)
+    {
+        if (is_string($cookie)) {
+            $cookie = explode(';', $cookie);
+        }
+        $_cookie = self::getCookieArray();
+        foreach ($cookie as $item) {
+            list($key, $value) = explode('=', $item);
+            $_cookie[$key] = $value;
+        }
+        $resultCookie = [];
+        foreach ($_cookie as $key => $value) {
+            $resultCookie[] = "{$key}={$value}";
+        }
+        self::$cookie = implode(';', $resultCookie);
     }
 
     /**
@@ -83,12 +107,13 @@ class Curl
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_USERAGENT, $this->userAgent);
-        curl_setopt($curl, CURLOPT_URL, $this->url);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->method);
         if ($this->method === 'POST') {
-            var_dump(http_build_query($data));
             curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+        } elseif ($this->method === 'GET') {
+            $this->url = $this->mixUrl($this->url, $data);
         }
+        curl_setopt($curl, CURLOPT_URL, $this->url);
         //todo::реализовать другие методы
         curl_setopt($curl, CURLOPT_HTTPHEADER, $this->mixHeaders());
         curl_setopt($curl, CURLOPT_HEADER, true);
@@ -100,7 +125,7 @@ class Curl
         $header = trim(substr($out, 0, $header_size));
         $this->result = trim(substr($out, $header_size));
         preg_match_all('|Set-Cookie: (.*);|U', $header, $results);
-        self::$cookie = implode(';', $results[1]);
+        self::setCookie(implode(';', $results[1]));
         $this->code = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
         return $this;
@@ -164,5 +189,15 @@ class Curl
     public function getHeader($key)
     {
         return $this->headers[$key] ? $this->headers[$key] : '';
+    }
+
+    private function mixUrl($url, $data)
+    {
+        $params = [];
+        foreach ($data as $key => $val) {
+            $val = (string)$val;
+            $params[] = "{$key}={$val}";
+        }
+        return empty($params) ? $url : $url . '?' . implode('&', $params);
     }
 }

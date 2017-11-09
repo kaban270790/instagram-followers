@@ -1,6 +1,7 @@
 <?php
 
 use Exceptions\AuthInstagramException;
+use Instagram\Followers;
 
 /**
  * Created by PhpStorm.
@@ -10,7 +11,11 @@ use Exceptions\AuthInstagramException;
  */
 class Instagram
 {
-    private $csrfToken = '';
+    private static $csrfToken = '';
+
+    private static $userId;
+
+    private $followers = [];
 
     public function __construct()
     {
@@ -20,7 +25,10 @@ class Instagram
             ->run();
         $cookies = Curl::getCookieArray();
         if (!empty($cookies['csrftoken'])) {
-            $this->csrfToken = $cookies['csrftoken'];
+            self::$csrfToken = $cookies['csrftoken'];
+        }
+        if (!empty($cookies['ds_user_id'])) {
+            self::$userId = $cookies['ds_user_id'];
         }
         $this->auth();
     }
@@ -35,7 +43,7 @@ class Instagram
                 ->setHeader('accept-language', 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7')
                 ->setHeader('X-Requested-With', 'XMLHttpRequest')
                 ->setHeader('X-Instagram-AJAX', '1')
-                ->setHeader('X-CSRFToken', $this->csrfToken)
+                ->setHeader('X-CSRFToken', self::$csrfToken)
                 ->setHeader('Referer', 'https://www.instagram.com/')
                 ->run([
                     'username' => Config::getConfig('instagram.login'),
@@ -44,6 +52,10 @@ class Instagram
             $result = $curl2->getjson();
             if ($result['user'] === true) {
                 if ($result['authenticated'] === true) {
+                    $cookies = Curl::getCookieArray();
+                    if (!empty($cookies['ds_user_id'])) {
+                        self::$userId = $cookies['ds_user_id'];
+                    }
                     return true;
                 } else {
                     throw new AuthInstagramException('Не верный пароль от пользователя пользователь');
@@ -54,5 +66,23 @@ class Instagram
         } catch (\Exception $e) {
             die($e->getMessage());
         }
+    }
+
+    public function getFollowers()
+    {
+        if (!$this->followers) {
+            $this->followers = Followers::getFollowers();
+        }
+        return $this->followers;
+    }
+
+    public static function getCSRFToken()
+    {
+        return self::$csrfToken;
+    }
+
+    public static function getUserId()
+    {
+        return self::$userId;
     }
 }
