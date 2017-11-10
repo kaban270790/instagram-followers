@@ -40,28 +40,30 @@ try {
     }
 
     if (count($followersForRemovingUsername) > 0) {
-        $subscriptions = \Instagram\Subscriptions::getSubscriptions($testAccountId);
-        $subscriptionsUsername = [];
-        foreach ($subscriptions as $subscription) {
-            $subscriptionsUsername[] = $subscription['username'];
-        }
-        $followersOutSubscription = array_diff($followersForRemovingUsername,
-            $subscriptionsUsername); //на которых не подписан
-        $followersInSubscription = array_diff($followersForRemovingUsername,
-            $followersOutSubscription); //на которых я подписан
-
-        if (count($followersOutSubscription) > 0) {
-            $sql = "UPDATE followers SET date_out = CURRENT_TIMESTAMP(), active = 0
-            WHERE date_out IS NULL AND account IN ('" . implode("', '", $followersOutSubscription) . "');";
-            Mysql::connect()->query($sql);
-        }
-
-        if (count($followersInSubscription) > 0) {
-            $sql = "UPDATE followers SET date_out = CURRENT_TIMESTAMP(), active = 1
-            WHERE date_out IS NULL AND account IN ('" . implode("', '", $followersInSubscription) . "');";
-            Mysql::connect()->query($sql);
-        }
+        $sql = "UPDATE followers SET date_out = CURRENT_TIMESTAMP()
+            WHERE date_out IS NULL AND account IN ('" . implode("', '", $followersForRemovingUsername) . "');";
+        Mysql::connect()->query($sql);
     }
+
+    $subscriptions = \Instagram\Subscriptions::getSubscriptions($testAccountId);
+    $subscriptionsUsername = [];
+    foreach ($subscriptions as $subscription) {
+        $subscriptionsUsername[] = $subscription['username'];
+    }
+    $followersOutSubscription = array_diff($followersUsername,
+        $subscriptionsUsername); //на которых не подписан
+    if (count($subscriptionsUsername) > 0) {
+        $sql = "UPDATE followers SET active = 1
+            WHERE date_out IS NULL AND account IN ('" . implode("', '", $subscriptionsUsername) . "');";
+        Mysql::connect()->query($sql);
+    }
+    if (count($followersOutSubscription) > 0) {
+        $sql = "UPDATE followers SET active = 0
+            WHERE date_out IS NULL AND account IN ('" . implode("', '", $followersOutSubscription) . "');";
+        Mysql::connect()->query($sql);
+    }
+
+
 
     Mysql::commit();
 } catch (\Exception $e) {
