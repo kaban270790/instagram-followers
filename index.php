@@ -77,6 +77,15 @@ try {
                 $countOfOthers++;
             }
         }
+        if ($publication['is_video'] === true) {
+            $countActions = $publication['video_view_count'];
+        } else {
+            $countActions = $publication['edge_media_preview_like']['count'];
+        }
+        $sql = "INSERT INTO posts (post_id, type, actions) 
+                VALUES ('{$publication['id']}', '{$publication['__typename']}', '{$countActions}') 
+                ON DUPLICATE KEY UPDATE actions = '{$countActions}'";
+        Mysql::connect()->query($sql);
         $rowInsert[] = "(CURRENT_TIMESTAMP(), '{$publication['id']}', {$countOfFollowers}, {$countOfOthers})";
     }
     Mysql::connect(true);
