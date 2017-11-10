@@ -8,6 +8,7 @@
 
 class Curl
 {
+    const MAX_PERIOD_CURL = 2;
     private static $cookie;
     private $url;
     private $method = 'GET';
@@ -17,6 +18,8 @@ class Curl
     private $result;
     private $userAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:54.0) Gecko/20100101 Firefox/54.0";
     private $code;
+
+    private static $timeLastCurl;
 
     public function __construct()
     {
@@ -103,7 +106,11 @@ class Curl
 
     public function run(array $data = [])
     {
-
+        if (self::$timeLastCurl) {
+            if (time() <= (self::$timeLastCurl + self::MAX_PERIOD_CURL)) {
+                sleep(self::$timeLastCurl - time() + self::MAX_PERIOD_CURL);
+            }
+        }
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_USERAGENT, $this->userAgent);
@@ -128,6 +135,8 @@ class Curl
         self::setCookie(implode(';', $results[1]));
         $this->code = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
+        self::$timeLastCurl = time();
+        printf("Дата: %s. Запрос: %s\n", date('H:i:s'), $this->url);
         return $this;
     }
 
