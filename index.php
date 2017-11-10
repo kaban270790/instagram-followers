@@ -24,13 +24,12 @@ if (empty($followersUsername)) {
     die("Подписчики отсутствуют");
 }
 try {
-    Mysql::transaction();
     $dbActiveFollowersUsername = Mysql::selectColl("SELECT account FROM followers WHERE date_out IS NULL");
     $followersForAddingUsername = array_diff($followersUsername,
         $dbActiveFollowersUsername); //тех, которых надо бобавить, или заново активировать
     $followersForRemovingUsername = array_diff($dbActiveFollowersUsername,
         $followersUsername); //тех, которых надо пометить что не активные
-
+    Mysql::connect(true);
     if (count($followersForAddingUsername) > 0) {
         foreach (array_chunk($followersForAddingUsername, Mysql::COUNT_INSERT_ROWS) as $part) {
             $sql = "INSERT INTO followers (account) VALUES ('" . implode("'), ('", $part) . "')
@@ -52,6 +51,7 @@ try {
     }
     $followersOutSubscription = array_diff($followersUsername,
         $subscriptionsUsername); //на которых не подписан
+    Mysql::connect(true);
     if (count($subscriptionsUsername) > 0) {
         $sql = "UPDATE followers SET active = 1
             WHERE date_out IS NULL AND account IN ('" . implode("', '", $subscriptionsUsername) . "');";
@@ -63,10 +63,32 @@ try {
         Mysql::connect()->query($sql);
     }
 
+    $publications = \Instagram\Publications::getPublications($testAccountId,
+        Config::getConfig('instagram.publication_count'));
+    $rowInsert = [];
+    foreach ($publications as $publication) {
+        $countOfFollowers = 0;
+        $countOfOthers = 0;
+        $likes = \Instagram\Likes::getLikes($publication['shortcode']);
+        foreach ($likes as $like) {
+            if (in_array($like['username'], $followersUsername)) {
+                $countOfFollowers++;
+            } else {
+                $countOfOthers++;
+            }
+        }
+        $rowInsert[] = "(CURRENT_TIMESTAMP(), '{$publication['id']}', {$countOfFollowers}, {$countOfOthers})";
+    }
+    Mysql::connect(true);
+    if (!empty($rowInsert)) {
+        foreach (array_chunk($rowInsert, Mysql::COUNT_INSERT_ROWS) as $part) {
+            $sql = "INSERT INTO `action` (`datetime`, `post_id`, `followers`, `other_users`) 
+                VALUES " . implode(', ', $part);
+            Mysql::connect()->query($sql);
+        }
+    }
 
 
-    Mysql::commit();
 } catch (\Exception $e) {
-    Mysql::rollback();
     die ($e->getMessage());
 }
