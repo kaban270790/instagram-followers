@@ -1,0 +1,51 @@
+CREATE TABLE action (
+  id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  datetime timestamp NULL DEFAULT NULL,
+  post_id bigint(20) DEFAULT NULL,
+  followers int(11) UNSIGNED DEFAULT NULL,
+  other_users int(11) UNSIGNED DEFAULT NULL,
+  PRIMARY KEY (id)
+)
+ENGINE = INNODB
+CHARACTER SET utf8
+COLLATE utf8_general_ci
+ROW_FORMAT = DYNAMIC;
+
+CREATE TABLE followers (
+  id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  account varchar(100) DEFAULT NULL,
+  date_in timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  date_out timestamp NULL DEFAULT NULL,
+  active tinyint(4) UNSIGNED DEFAULT NULL,
+  PRIMARY KEY (id),
+  UNIQUE INDEX account (account)
+)
+ENGINE = INNODB
+CHARACTER SET utf8
+COLLATE utf8_general_ci
+ROW_FORMAT = DYNAMIC;
+
+CREATE TABLE `log‐scan` (
+  id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  datetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  account bigint(20) NOT NULL,
+  followers int(11) NOT NULL,
+  PRIMARY KEY (id)
+)
+ENGINE = INNODB
+CHARACTER SET utf8
+COLLATE utf8_general_ci
+ROW_FORMAT = DYNAMIC;
+
+CREATE TABLE posts (
+  id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  post_id bigint(20) UNSIGNED DEFAULT NULL,
+  type varchar(50) DEFAULT NULL,
+  actions int(11) UNSIGNED DEFAULT NULL,
+  PRIMARY KEY (id),
+  UNIQUE INDEX post_id (post_id)
+)
+ENGINE = INNODB
+CHARACTER SET utf8
+COLLATE utf8_general_ci
+ROW_FORMAT = DYNAMIC;
