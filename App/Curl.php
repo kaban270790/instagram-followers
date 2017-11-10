@@ -136,7 +136,6 @@ class Curl
         $this->code = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
         self::$timeLastCurl = time();
-        printf("Дата: %s. Запрос: %s\n", date('H:i:s'), $this->url);
         return $this;
     }
 
