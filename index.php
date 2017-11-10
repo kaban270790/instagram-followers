@@ -82,11 +82,16 @@ try {
     Mysql::connect(true);
     if (!empty($rowInsert)) {
         foreach (array_chunk($rowInsert, Mysql::COUNT_INSERT_ROWS) as $part) {
-            $sql = "INSERT INTO `action` (`datetime`, `post_id`, `followers`, `other_users`) 
+            $sql = "INSERT INTO `action` (`datetime`, `post_id`, `followers`, `other_users`)
                 VALUES " . implode(', ', $part);
             Mysql::connect()->query($sql);
         }
     }
+
+    $countFollowers = count($followersUsername);
+    $sql = "INSERT INTO `log‐scan` (`datetime`, `account`, `followers`) 
+            VALUES (CURRENT_TIMESTAMP(), {$testAccountId}, {$countFollowers})";
+    Mysql::connect()->query($sql);
 
 
 } catch (\Exception $e) {
