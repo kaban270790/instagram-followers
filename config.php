@@ -10,10 +10,12 @@ return [
         'db_host' => 'localhost',
         'db_user' => 'root',
         'db_pass' => '',
-        'db_name' => 'finances',
+        'db_name' => 'instagram',
     ],
     'instagram' => [
-        'login'    => '',
-        'password' => '',
+        'login'             => '',
+        'password'          => '',
+        'test_account_id'   => 0,
+        'publication_count' => 30,
     ],
 ];
